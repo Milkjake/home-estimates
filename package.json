@@ -1,0 +1,19 @@
+{
+  "name": "homes",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cli-progress": "^3.9.0",
+    "csv-parser": "^3.0.0",
+    "fast-csv": "^4.3.6",
+    "prompt": "^1.1.0",
+    "puppeteer": "^10.0.0",
+    "sequential-async-foreach": "^1.0.4"
+  }
+}
