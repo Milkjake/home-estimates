@@ -18,11 +18,11 @@ prompt.get(["suburb"], async function (err, result) {
   const { suburb } = result;
   let suburbData = [];
 
-  if (fs.existsSync(`csv/${suburb}-links.csv`)) {
+  if (fs.existsSync(`csv/${suburb}/${suburb}-links.csv`)) {
     console.log(`Links for ${suburb} exist, fetching estimates`);
 
     processCsv(
-      `csv/${suburb}-links.csv`,
+      `csv/${suburb}/${suburb}-links.csv`,
       function (row) {
         suburbData = [...suburbData, row];
       },
@@ -53,14 +53,16 @@ prompt.get(["suburb"], async function (err, result) {
         });
 
         console.log(`Total elapsed time: ${msToTime(Date.now() - start)}`);
-        writeCsv(`${suburb}-estimates`, estimates);
+        writeCsv(suburb, `${suburb}-estimates`, estimates);
+
+        prompt.stop();
       }
     );
-  } else if (fs.existsSync(`csv/${suburb}.csv`)) {
+  } else if (fs.existsSync(`csv/${suburb}/${suburb}.csv`)) {
     console.log(`Data for ${suburb} already exists`);
 
     processCsv(
-      `csv/${suburb}.csv`,
+      `csv/${suburb}/${suburb}.csv`,
       function (row) {
         suburbData = [...suburbData, row];
       },
@@ -84,7 +86,9 @@ prompt.get(["suburb"], async function (err, result) {
         );
 
         console.log(`Total elapsed time: ${msToTime(Date.now() - start)}`);
-        writeCsv(`${suburb}-links`, data.flat());
+        writeCsv(suburb, `${suburb}-links`, data.flat());
+
+        prompt.stop();
       }
     );
   } else {
@@ -99,7 +103,12 @@ prompt.get(["suburb"], async function (err, result) {
         }
       },
       function () {
-        writeCsv(suburb, suburbData);
+        if (!fs.existsSync(`csv/${suburb}`)) {
+          fs.mkdirSync(`csv/${suburb}`);
+        }
+        writeCsv(suburb, suburb, suburbData);
+
+        prompt.stop();
       }
     );
   }
@@ -126,8 +135,8 @@ function onErr(err) {
   return 1;
 }
 
-function writeCsv(filename, data) {
-  const ws = fs.createWriteStream(`csv/${filename}.csv`);
+function writeCsv(suburb, filename, data) {
+  const ws = fs.createWriteStream(`csv/${suburb}/${filename}.csv`);
 
   fastcsv.write(data, { headers: true }).pipe(ws);
 }
